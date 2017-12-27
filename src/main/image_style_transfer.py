@@ -15,27 +15,30 @@ from src.tool import net_tool as tool
 # 判读是否使用gpu
 ctx = tool.get_ctx()
 
-content_weight = 0.8
-style_weight = 0.8
+content_weight = 1
+style_weight = 100
 learning_rate = 0.01
 
 
 def content_loss(x, y):
-    loss_function = gluon.loss.L2Loss()
-    loss = loss_function(x, y)
-    return loss
+    """
+    内容loss function
+    :param x:
+    :param y:
+    :return:
+    """
+    return gluon.loss.L2Loss()(x, y)
 
 
-def gram(x, m, n):
-    y = x.reshape((m,n))
-    gram = mx.ndarray.dot(y.T, y)
-    return gram
-
-def gram_matrix(y):
-    (b, ch, h, w) = y.shape
-    features = y.reshape((b, ch, w * h))
-    #features_t = F.SwapAxis(features,1, 2)
-    gram = mx.ndarray.batch_dot(features, features, transpose_b=True) / (ch * h * w)
+def gram(features):
+    """
+    计算features 的 gram矩阵
+    :param features:
+    :return:
+    """
+    (b, ch, h, w) = features.shape
+    features = features.reshape((b, ch, w * h))
+    gram = mx.ndarray.batch_dot(features, features, transpose_b=True)
     return gram
 
 
@@ -49,9 +52,9 @@ def style_loss(x_list, y_list):
         M = shape[2] * shape[3]
         N = shape[1]
 
-        A = gram_matrix(y)
-        G = gram_matrix(x)
-        loss = (1. / (4 * N ** 2 * M ** 2)) * loss_function(A, G)+loss
+        A = gram(y)
+        G = gram(x)
+        loss = loss + loss_function(A, G) * (1. / (2 * (N ** 2) * (M ** 2)))
     return loss
 
 
@@ -74,19 +77,22 @@ def train():
     # output
     output = Parameter('output', shape=input_img.shape)
     output.initialize(ctx=ctx)
-    output.set_data(input_img)
+    output.set_data(tool.new_img(input_img.shape))
 
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
 
     # 迭代获取新图片
-    for e in range(200):
+    for e in range(10000):
         with autograd.record():
-            y_style = style_net(output.data())
-            y_content = content_net(output.data())
-            loss = content_weight * content_loss(y_content, content) + style_weight * style_loss(y_style, style)
+            _img = output.data()
+            _style = style_net(_img)
+            _content = content_net(_img)
+            loss = content_weight * content_loss(_content, content) + style_weight * style_loss(_style, style)
         print("次数:", e, "  loss:", loss)
         loss.backward()
         trainer.step(1)
+        if e % 100 == 0:
+            tool.save_img(output.data(), "../../data/img/output" + str(e) + ".png")
     tool.save_img(output.data(), "../../data/img/output.png")
 
 
@@ -96,8 +102,8 @@ def read_input():
     style_path = "../../data/img/style.jpg"
 
     # 读取图片
-    input_img = tool.read_img(input_path)
-    style_img = tool.read_img(style_path)
+    input_img = tool.read_img(input_path).as_in_context(ctx)
+    style_img = tool.read_img(style_path).as_in_context(ctx)
     return input_img, style_img
 
 

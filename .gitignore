@@ -7,6 +7,8 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+data/param/
+.idea
 .Python
 env/
 build/

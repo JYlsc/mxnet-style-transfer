@@ -10,31 +10,27 @@ import numpy as np
 import mxnet as mx
 from mxnet import image
 import mxnet.ndarray as nd
-import matplotlib.pyplot as plt
+import cv2
 
 
-def read_img(path, size=500):
+def read_img(path, size=300):
     """
     读取图片
     :param path: 图片路径
     :return: shape = (1,3,224,224) , layout =（B,C,H,D）
     """
     # 读取图片
-    img = image.imread(path)
+    img = nd.array(cv2.imread(path))
     # 转换图片大小
-    img = image.ResizeAug(size, interp=2)(img)
-    # 截取中心
-    img, (x, y, width, height) = image.center_crop(src=img, size=(size, size), interp=2)
+    img = image.imresize(img,size,size)
     # 将图片归一化
-    img = img.astype('float32')
+    img = img.astype('float32')/255
     # 将图片由 (H,W,C）转换成 (N,C,H,W)
     img = nd.transpose(img, axes=(2, 0, 1)).expand_dims(0)
     return img
 
-def new_img(size=500):
-    img = mx.nd.random.normal(shape=(1, 3, size, size))
-    return img
-
+def new_img(shape):
+    return mx.nd.random.normal(shape=shape)
 
 
 def save_img(img, path):
@@ -47,7 +43,11 @@ def save_img(img, path):
     # 将图片由 (N,C,H,W)转换成 (C,H,W)
     img = img[0,]
     # 将图片由 (C,H,W)转换成 (H,W,C)
-    img = nd.transpose(img, axes=(1, 2, 0))
+    img = nd.transpose(img, axes=(1, 2, 0))*255
+
+    img = img.asnumpy()
+    cv2.imwrite(path,img)
+
     # plt.imshow(img.asnumpy().astype(np.uint8))
     # plt.savefig(path)
     # plt.show()
