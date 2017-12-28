@@ -94,7 +94,7 @@ def train():
 
 def read_input():
     # 设置输入输出文件路径
-    input_path = "../../data/img/input.jpg"
+    input_path = "../../data/img/stata.jpg"
     style_path = "../../data/img/style3.jpg"
 
     # 读取图片
