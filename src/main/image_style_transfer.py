@@ -73,7 +73,6 @@ def train():
     features = features_net(input_img)
 
 
-
     output = gluon.Parameter('_img', shape=input_img.shape)
     output.set_data(tool.new_img(input_img.shape))
     output.initialize(ctx=ctx)
@@ -100,8 +99,8 @@ def read_input():
     style_path = "../../data/img/style.jpg"
 
     # 读取图片
-    input_img = tool.read_img(input_path)
-    style_img = tool.read_img(style_path)
+    input_img = tool.read_img(input_path).as_in_context(ctx)
+    style_img = tool.read_img(style_path).as_in_context(ctx)
     return input_img, style_img
 
 
