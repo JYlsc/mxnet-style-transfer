@@ -6,7 +6,6 @@
 # @Software: PyCharm
 # @Tag:
 
-import numpy as np
 import mxnet as mx
 from mxnet import image
 import mxnet.ndarray as nd
