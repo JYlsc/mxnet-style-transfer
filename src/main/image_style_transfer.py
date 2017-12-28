@@ -55,7 +55,9 @@ def style_loss(features, _features):
         feature = features[i]
         G = gram(feature)
         A = gram(_features[i])
-        loss = loss + gluon.loss.L2Loss()(A, G)
+        N = feature.shape[1]
+        M = feature.shape[2]*feature.shape[3]
+        loss = loss + gluon.loss.L2Loss()(A, G) * (1. / (2 * (N ** 2) * (M ** 2)))*0.2
     return loss
 
 
