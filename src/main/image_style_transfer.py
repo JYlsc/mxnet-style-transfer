@@ -50,7 +50,7 @@ def style_loss(features, _features):
         A = gram(_features[i])
         N = feature.shape[1]
         M = feature.shape[2]*feature.shape[3]
-        loss = loss + gluon.loss.L2Loss()(A, G) * (1. / (2 * (N ** 2) * (M ** 2)))
+        loss = loss + gluon.loss.L2Loss()(A, G) * (1. / (4 * (N ** 2) * (M ** 2)))
     return loss
 
 
@@ -63,14 +63,14 @@ def train():
     features_net = model.features_net(vgg)
 
     # 读取图片
-    input_img, style_img = read_input()
+    img, style_img = read_input()
 
     # 获取style及content
-    features = features_net(input_img)
+    content = features_net(img)[0]
+    style = features_net(style_img)[1:]
 
-
-    output = gluon.Parameter('_img', shape=input_img.shape)
-    output.set_data(input_img)
+    output = gluon.Parameter('_img', shape=img.shape)
+    output.set_data(img)
     output.initialize(ctx=ctx)
 
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
@@ -80,8 +80,8 @@ def train():
         with autograd.record():
             _img = output.data()
             _features = features_net(_img)
-            loss = content_weight * content_loss(features[0], _features[0])+\
-                   style_weight * style_loss(features[1:],_features[1:])
+            loss = content_weight * content_loss(content, _features[0])+\
+                   style_weight * style_loss(style,_features[1:])
         print("次数:", e, "  loss:", loss)
         loss.backward()
         trainer.step(1)
