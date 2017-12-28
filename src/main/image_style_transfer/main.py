@@ -21,10 +21,12 @@ alpha = 500
 learning_rate = 1
 # 迭代次数
 iter = 10000
+
 data_path = "../../../data/"
+
 # 设置输入输出文件路径
 input_path = data_path+"img/content/input.jpg"
-style_path = data_path+"img/style/style6.jpg"
+style_path = data_path+"img/style/style7.jpg"
 output_path =data_path+"img/output/"
 
 # vgg 参数路径
@@ -39,7 +41,8 @@ def train():
     features_net = model.features_net(vgg)
 
     # 读取图片
-    img, style_img = read_input()
+    img = tool.read_img(input_path).as_in_context(ctx)
+    style_img = tool.read_img(style_path).as_in_context(ctx)
 
     # 获取style及content
     content = features_net(img)[0]
@@ -70,12 +73,6 @@ def train():
             tool.save_img(output.data(), output_path + str(e) + ".png")
     tool.save_img(output.data(), output_path+"result.png")
 
-
-def read_input():
-    # 读取图片
-    input_img = tool.read_img(input_path).as_in_context(ctx)
-    style_img = tool.read_img(style_path).as_in_context(ctx)
-    return input_img, style_img
 
 
 train()
