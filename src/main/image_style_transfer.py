@@ -61,7 +61,7 @@ def style_loss(x_list, y_list):
 def train():
     # 加载vgg模型
     param = "../../data/param/"
-    vgg = vision.vgg19_bn(ctx=ctx, pretrained=True, root=param)
+    vgg = vision.vgg19(ctx=ctx, pretrained=True, root=param)
 
     # 构建风格网络及内容网络
     features_net = model.features_net(vgg)
@@ -85,7 +85,7 @@ def train():
         with autograd.record():
             _img = output.data()
             _features = features_net(_img)
-            loss = content_weight * content_loss(_features[0], _features[0]) + style_weight * style_loss(_style, style)
+            loss = content_weight * content_loss(features[0], _features[0])
         print("次数:", e, "  loss:", loss)
         loss.backward()
         trainer.step(1)
