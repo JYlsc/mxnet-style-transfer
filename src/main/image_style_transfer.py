@@ -16,8 +16,8 @@ from src.tool import net_tool as tool
 ctx = tool.get_ctx()
 
 content_weight = 1
-style_weight = 100
-learning_rate = 1
+style_weight = 1000
+learning_rate = 10
 
 
 def content_loss(x, y):
@@ -71,13 +71,14 @@ def train():
 
     output = gluon.Parameter('_img', shape=img.shape)
     output.initialize(ctx=ctx)
-    output.set_data(img)
+    output.set_data(style_img)
 
-    tool.save_img(output.data(), "../../data/img/output.png")
+    tool.save_img(output.data(), "../../data/img/src.jpg")
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
 
     # 迭代获取新图片
-    for e in range(10000):
+    old_loss = 0.
+    for e in range(2000):
         with autograd.record():
             _img = output.data()
             _features = features_net(_img)
@@ -86,16 +87,22 @@ def train():
         print("次数:", e, "  loss:", loss)
         loss.backward()
         trainer.step(1)
-        if e % 200 == 0:
+        if old_loss == 0.:
+            old_loss= loss
+            continue
+        if old_loss - loss < 10000:
+            old_loss =loss
             trainer.set_learning_rate(trainer.learning_rate / 10)
+        if e % 100 == 0:
+           # trainer.set_learning_rate(trainer.learning_rate / 10)
             tool.save_img(output.data(), "../../data/img/output" + str(e) + ".png")
     tool.save_img(output.data(), "../../data/img/output.png")
 
 
 def read_input():
     # 设置输入输出文件路径
-    input_path = "../../data/img/stata.jpg"
-    style_path = "../../data/img/style3.jpg"
+    input_path = "../../data/img/content/input.jpg"
+    style_path = "../../data/img/style/style6.jpg"
 
     # 读取图片
     input_img = tool.read_img(input_path).as_in_context(ctx)
