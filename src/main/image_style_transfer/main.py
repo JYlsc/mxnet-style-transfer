@@ -19,15 +19,20 @@ ctx = tool.get_ctx()
 alpha = 0.05
 # 学习速率
 learning_rate = 0.01
-
+# 迭代次数
+iter = 10000
+data_path = "../../../data/"
 # 设置输入输出文件路径
-input_path = "../../../data/img/content/input.jpg"
-style_path = "../../../data/img/style/style6.jpg"
+input_path = data_path+"img/content/input.jpg"
+style_path = data_path+"img/style/style6.jpg"
+output_path =data_path+"img/output/"
+
+# vgg 参数路径
+param = data_path+"param/"
 
 
 def train():
     # 加载vgg模型
-    param = "../../data/param/"
     vgg = vision.vgg19(ctx=ctx, pretrained=True, root=param)
 
     # 构建风格网络及内容网络
@@ -44,11 +49,11 @@ def train():
     output.initialize(ctx=ctx)
     output.set_data(img)
 
-    tool.save_img(output.data(), "../../data/img/src.jpg")
+    tool.save_img(output.data(), output_path+"src.jpg")
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
 
     # 迭代获取新图片
-    for e in range(1000):
+    for e in range(iter):
         with autograd.record():
             _img = output.data()
             _features = features_net(_img)
@@ -62,8 +67,8 @@ def train():
         print("次数:", e, "  loss:", loss)
 
         if e % 100 == 0:
-            tool.save_img(output.data(), "../../data/img/output" + str(e) + ".png")
-    tool.save_img(output.data(), "../../data/img/output.png")
+            tool.save_img(output.data(), output_path + str(e) + ".png")
+    tool.save_img(output.data(), output_path+"result.png")
 
 
 def read_input():
