@@ -86,7 +86,8 @@ def train():
         print("次数:", e, "  loss:", loss)
         loss.backward()
         trainer.step(1)
-        if e % 100 == 0:
+        if e % 200 == 0:
+            trainer.set_learning_rate(trainer.learning_rate / 10)
             tool.save_img(output.data(), "../../data/img/output" + str(e) + ".png")
     tool.save_img(output.data(), "../../data/img/output.png")
 
