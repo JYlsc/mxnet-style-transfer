@@ -32,7 +32,7 @@ class FeatureNet():
         style_layers = [0, 5, 10, 19, 28]
         content_layers = [21]
         style = []
-        content = _
+        content = 0.
         for i in range(len(self.net)):
             x = self.net[i](x)
             if i in style_layers:
@@ -80,8 +80,7 @@ class FeatureNet():
             loss = loss + self.get_loss(grams[i], _grams[i]) / i
         return loss
 
-
-    def get_tv_loss(self,x):
+    def get_tv_loss(self, x):
         """
         总变差降噪（Total Variation Denoising)
         去除噪音
