@@ -12,7 +12,7 @@ import mxnet.ndarray as nd
 import cv2
 
 
-def read_img(path, size=500):
+def read_img(path, size=224):
     """
     读取图片
     :param path: 图片路径
@@ -45,7 +45,7 @@ def save_img(img, path):
     img = nd.transpose(img, axes=(1, 2, 0))
 
     img = img.asnumpy()
-    cv2.imwrite(path,img)
+    cv2.imwrite(path,img,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
 
     # plt.imshow(img.asnumpy().astype(np.uint8))
     # plt.savefig(path)
