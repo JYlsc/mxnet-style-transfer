@@ -17,15 +17,14 @@ from src.main.image_style_transfer import loss as loss_function
 ctx = tool.get_ctx()
 
 # 内容风格占比,当觉得风格不明显时可以放大该值
-alpha = 500
+alpha = 50000
 
 # 学习速率,需按实际情况进行调整
 # 每张图片可能都不一样
 learning_rate = 1
 
 # 噪音消除的权重
-beta = 10
-
+beta = 0.1
 
 
 # 迭代次数
@@ -33,7 +32,7 @@ iter = 10000
 
 # 生成图片大小
 # GTX1060 3G,尼玛只能生成400*400的图！！！
-img_size = 400
+img_size = 300
 
 data_path = "../../../data/"
 
@@ -71,8 +70,8 @@ def style_transfer(net, content_img, style_img):
 
             # 计算总loss
             loss = net.get_loss(content, _content) \
-                   + alpha * net.get_style_loss(grams, _grams) \
-                   + beta * net.get_tv_loss(result.data())
+                   + alpha * net.get_style_loss(grams, _grams)
+                #   + beta * net.get_tv_loss(result.data())
 
         loss.backward()
         trainer.step(1)

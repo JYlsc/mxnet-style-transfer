@@ -48,7 +48,7 @@ class FeatureNet():
         :param y:
         :return:
         """
-        return (x - y).square().mean()
+        return gluon.loss.L2Loss()(x, y)
 
     def get_grams(self, features):
         list = []
@@ -63,9 +63,9 @@ class FeatureNet():
         :return:
         """
         c = features.shape[1]
-        n = features.size / features.shape[1]
+        n = features.size / c
         y = features.reshape((c, int(n)))
-        return nd.dot(y, y.T) / n
+        return nd.dot(y, y.T)
 
     def get_style_loss(self, grams, _grams):
         """
@@ -75,9 +75,13 @@ class FeatureNet():
         :return:
         """
         loss = 0.
-        for i in range(len(grams)):
+        for i in range(5):
+            gram = grams[i]
+            c = gram.shape[1]
+            n = gram.size / c
+
             # 计算风格loss，越靠近输入层的gram权重越高
-            loss = loss + self.get_loss(grams[i], _grams[i]) / i
+            loss = loss + self.get_loss(gram, _grams[i]) * ((5. - i) / (4. * c ** 2 * n ** 2))
         return loss
 
     def get_tv_loss(self, x):
