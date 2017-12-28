@@ -16,7 +16,7 @@ from src.main.image_style_transfer import loss as loss_function
 ctx = tool.get_ctx()
 
 # 内容风格占比
-alpha = 0.05
+alpha = 500
 # 学习速率
 learning_rate = 0.01
 # 迭代次数

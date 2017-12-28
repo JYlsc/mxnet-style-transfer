@@ -44,5 +44,5 @@ def style_loss(features, _features):
 
 
 def loss(content, _content, style, _style, alpha):
-    loss = alpha * content_loss(content, _content) + 1 * style_loss(style, _style)
+    loss = 1 * content_loss(content, _content) + alpha * style_loss(style, _style)
     return loss
