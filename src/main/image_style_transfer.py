@@ -70,8 +70,9 @@ def train():
     style = features_net(style_img)[1:]
 
     output = gluon.Parameter('_img', shape=img.shape)
-    output.set_data(img)
     output.initialize(ctx=ctx)
+    output.set_data(img)
+
     tool.save_img(output.data(), "../../data/img/output.png")
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
 
