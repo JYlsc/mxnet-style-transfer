@@ -74,7 +74,7 @@ def train():
 
 
     output = gluon.Parameter('_img', shape=input_img.shape)
-    output.set_data(tool.new_img(input_img.shape))
+    output.set_data(input_img)
     output.initialize(ctx=ctx)
 
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
