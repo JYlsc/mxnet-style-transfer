@@ -42,19 +42,15 @@ def gram(features):
     return gram
 
 
-def style_loss(x_list, y_list):
+def style_loss(features, _features):
     loss = 0.
-    for i in range(len(x_list)):
-        x = x_list[i]
-        y = y_list[i]
-        shape = x.shape
-        loss_function = gluon.loss.L2Loss()
-        M = shape[2] * shape[3]
-        N = shape[1]
-
-        A = gram(y)
-        G = gram(x)
-        loss = loss + loss_function(A, G) * (1. / (2 * (N ** 2) * (M ** 2)))
+    for i in range(len(features)):
+        feature = features[i]
+        G = gram(feature)
+        A = gram(_features[i])
+        N = feature.shape[1]
+        M = feature.shape[2]*feature.shape[3]
+        loss = loss + gluon.loss.L2Loss()(A, G) * (1. / (2 * (N ** 2) * (M ** 2)))
     return loss
 
 
@@ -84,7 +80,8 @@ def train():
         with autograd.record():
             _img = output.data()
             _features = features_net(_img)
-            loss = content_weight * content_loss(features[0], _features[0])
+            loss = content_weight * content_loss(features[0], _features[0])+\
+                   style_weight * style_loss(features[1:],_features[1:])
         print("次数:", e, "  loss:", loss)
         loss.backward()
         trainer.step(1)
