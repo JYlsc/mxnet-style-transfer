@@ -21,12 +21,13 @@ def read_img(path, size=400):
     # 读取图片
     img = nd.array(cv2.imread(path))
     # 转换图片大小
-    img = image.imresize(img,size,size)
+    img = image.imresize(img, size, size)
     # 将图片归一化
-    img = img.astype('float32')
+    img = img.astype('float32') / 255
     # 将图片由 (H,W,C）转换成 (N,C,H,W)
     img = nd.transpose(img, axes=(2, 0, 1)).expand_dims(0)
     return img
+
 
 def new_img(shape):
     return mx.nd.random.normal(shape=shape)
@@ -42,10 +43,10 @@ def save_img(img, path):
     # 将图片由 (N,C,H,W)转换成 (C,H,W)
     img = img[0,]
     # 将图片由 (C,H,W)转换成 (H,W,C)
-    img = nd.transpose(img, axes=(1, 2, 0))
+    img = nd.transpose(img, axes=(1, 2, 0)) * 255
 
     img = img.asnumpy()
-    cv2.imwrite(path,img,[int(cv2.IMWRITE_JPEG_QUALITY), 100])
+    cv2.imwrite(path, img, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
 
     # plt.imshow(img.asnumpy().astype(np.uint8))
     # plt.savefig(path)

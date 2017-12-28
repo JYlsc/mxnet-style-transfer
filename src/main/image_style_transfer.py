@@ -17,7 +17,7 @@ ctx = tool.get_ctx()
 
 content_weight = 1
 style_weight = 1000
-learning_rate = 10
+learning_rate = 0.01
 
 
 def content_loss(x, y):
@@ -50,7 +50,7 @@ def style_loss(features, _features):
         A = gram(_features[i])
         N = feature.shape[1]
         M = feature.shape[2]*feature.shape[3]
-        loss = loss + gluon.loss.L2Loss()(A, G) * (1. / (4 * (N ** 2) * (M ** 2)))
+        loss = loss + gluon.loss.L2Loss()(A, G) * (1. / (2 * (N ** 2) * (M ** 2)))
     return loss
 
 
@@ -84,17 +84,13 @@ def train():
             _features = features_net(_img)
             loss = content_weight * content_loss(content, _features[0])+\
                    style_weight * style_loss(style,_features[1:])
-        print("次数:", e, "  loss:", loss)
+
         loss.backward()
         trainer.step(1)
-        if old_loss == 0.:
-            old_loss= loss
-            continue
-        if old_loss - loss < 10000:
-            old_loss =loss
-            trainer.set_learning_rate(trainer.learning_rate / 10)
+
+        print("次数:", e, "  loss:", loss)
+
         if e % 100 == 0:
-           # trainer.set_learning_rate(trainer.learning_rate / 10)
             tool.save_img(output.data(), "../../data/img/output" + str(e) + ".png")
     tool.save_img(output.data(), "../../data/img/output.png")
 
