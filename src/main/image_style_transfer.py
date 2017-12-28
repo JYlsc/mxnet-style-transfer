@@ -20,6 +20,13 @@ style_weight = 1000
 learning_rate = 0.01
 
 
+# 设置输入输出文件路径
+input_path = "../../data/img/content/input.jpg"
+style_path = "../../data/img/style/style6.jpg"
+output_path ="../../data/img/"
+
+
+
 def content_loss(x, y):
     """
     内容loss function
@@ -48,9 +55,7 @@ def style_loss(features, _features):
         feature = features[i]
         G = gram(feature)
         A = gram(_features[i])
-        N = feature.shape[1]
-        M = feature.shape[2]*feature.shape[3]
-        loss = loss + gluon.loss.L2Loss()(A, G) * (1. / (2 * (N ** 2) * (M ** 2)))
+        loss = loss + gluon.loss.L2Loss()(A, G)
     return loss
 
 
@@ -77,8 +82,7 @@ def train():
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
 
     # 迭代获取新图片
-    old_loss = 0.
-    for e in range(2000):
+    for e in range(1000):
         with autograd.record():
             _img = output.data()
             _features = features_net(_img)
@@ -96,9 +100,7 @@ def train():
 
 
 def read_input():
-    # 设置输入输出文件路径
-    input_path = "../../data/img/content/input.jpg"
-    style_path = "../../data/img/style/style6.jpg"
+
 
     # 读取图片
     input_img = tool.read_img(input_path).as_in_context(ctx)
