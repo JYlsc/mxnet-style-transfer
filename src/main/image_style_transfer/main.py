@@ -65,7 +65,7 @@ def style_transfer(net, content_img, style_img):
         with autograd.record():
             # 获取目标图片当前的风格及内容特征
             _content, _style = net.get_features(result.data())
-            _grams = net.get_gram(_style)
+            _grams = net.get_grams(_style)
 
             # 计算总loss
             loss = net.get_loss(content, _content) \
