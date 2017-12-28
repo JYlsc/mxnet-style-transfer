@@ -17,14 +17,16 @@ from src.main.image_style_transfer import loss as loss_function
 ctx = tool.get_ctx()
 
 # 内容风格占比,当觉得风格不明显时可以放大该值
-alpha = 5000
-
-# 噪音消除的权重
-beta = 10
+alpha = 500
 
 # 学习速率,需按实际情况进行调整
 # 每张图片可能都不一样
 learning_rate = 1
+
+# 噪音消除的权重
+beta = 10
+
+
 
 # 迭代次数
 iter = 10000

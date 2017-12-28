@@ -6,13 +6,26 @@
 # @Software: PyCharm
 # @Tag:
 from mxnet import gluon
+from mxnet import ndarray as nd
 
 
+def get_gram(features):
+    list = []
+    for feature in features:
+        list.append(gram(feature))
+    return list
 
 
-
-
-
+def gram(features):
+    """
+    计算features 的 gram矩阵
+    :param features:
+    :return:
+    """
+    c = features.shape[1]
+    n = features.size / features.shape[1]
+    y = features.reshape((c, int(n)))
+    return nd.dot(y, y.T) / n
 
 
 def style_loss(features, _features):
