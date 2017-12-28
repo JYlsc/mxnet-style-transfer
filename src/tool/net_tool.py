@@ -13,7 +13,7 @@ import mxnet.ndarray as nd
 import cv2
 
 
-def read_img(path, size=300):
+def read_img(path, size=224):
     """
     读取图片
     :param path: 图片路径

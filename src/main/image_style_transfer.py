@@ -64,18 +64,17 @@ def train():
     vgg = vision.vgg19_bn(ctx=ctx, pretrained=True, root=param)
 
     # 构建风格网络及内容网络
-    style_net = model.style_net(vgg)
-    content_net = model.content_net(vgg)
+    features_net = model.features_net(vgg)
 
     # 读取图片
     input_img, style_img = read_input()
 
     # 获取style及content
-    style = style_net(style_img)
-    content = content_net(input_img)
+    features = features_net(input_img)
 
-    # output
-    output = Parameter('output', shape=input_img.shape)
+
+
+    output = gluon.Parameter('_img', shape=input_img.shape)
     output.initialize(ctx=ctx)
     output.set_data(tool.new_img(input_img.shape))
 
@@ -85,9 +84,8 @@ def train():
     for e in range(10000):
         with autograd.record():
             _img = output.data()
-            _style = style_net(_img)
-            _content = content_net(_img)
-            loss = content_weight * content_loss(_content, content) + style_weight * style_loss(_style, style)
+            _features = features_net(_img)
+            loss = content_weight * content_loss(_features[0], _features[0]) + style_weight * style_loss(_style, style)
         print("次数:", e, "  loss:", loss)
         loss.backward()
         trainer.step(1)

@@ -12,6 +12,25 @@ from mxnet.gluon.model_zoo import vision
 from src.tool import net_tool as tool
 
 
+
+def features_net(vgg):
+    # 获取要输出的层对应symbol列表
+    data = mx.sym.var('data')
+    internals = vgg(data).get_internals()
+    print(internals.list_outputs())
+    list = [internals['vgg0_conv9_fwd_output'],
+            internals['vgg0_conv0_fwd_output'],
+            internals['vgg0_conv2_fwd_output'],
+            internals['vgg0_conv4_fwd_output'],
+            internals['vgg0_conv8_fwd_output'],
+            internals['vgg0_conv12_fwd_output']]
+
+    # 根据原有网络构建新的网络
+    net = gluon.SymbolBlock(list, data, params=vgg.collect_params())
+    return net
+
+
+
 def style_net(vgg):
     """
     定义用于提取风格特征的网络
@@ -45,7 +64,7 @@ def content_net(vgg):
     # 获取要输出的层对应symbol列表
     data = mx.sym.var('data')
     internals = vgg(data).get_internals()
-    list = [internals['vgg0_conv9_fwd_output']]
+    list = []
 
     # 根据原有网络构建新的网络
     net = gluon.SymbolBlock(list, data, params=vgg.collect_params())
