@@ -18,7 +18,7 @@ ctx = tool.get_ctx()
 # 内容风格占比
 alpha = 500
 # 学习速率
-learning_rate = 0.01
+learning_rate = 1
 # 迭代次数
 iter = 10000
 data_path = "../../../data/"
