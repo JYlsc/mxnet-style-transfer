@@ -32,13 +32,13 @@ class FeatureNet():
         style_layers = [0, 5, 10, 19, 28]
         content_layers = [21]
         style = []
-        content = []
+        content = _
         for i in range(len(self.net)):
             x = self.net[i](x)
             if i in style_layers:
                 style.append(x)
             if i in content_layers:
-                content.append(x)
+                content = x
         return content, style
 
     def get_loss(self, x, y):
