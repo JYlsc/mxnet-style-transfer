@@ -16,8 +16,8 @@ from src.tool import net_tool as tool
 ctx = tool.get_ctx()
 
 content_weight = 1
-style_weight = 1000
-learning_rate = 0.01
+style_weight = 100
+learning_rate = 1
 
 
 def content_loss(x, y):
