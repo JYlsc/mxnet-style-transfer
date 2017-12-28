@@ -2,63 +2,27 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2017/12/22 16:35
 # @Author  : Leishichi
-# @File    : image_style_transfer.py
+# @File    : main.py
 # @Software: PyCharm
 # @Tag: 《 Image style transfer using convolutional neural networks 》 基于mxnet的实现
 from mxnet import gluon, autograd
 import mxnet as mx
-from mxnet.gluon import Parameter
 from mxnet.gluon.model_zoo import vision
-from src.main import image_style_transfer_model as model
+from src.main.image_style_transfer import model as model
 from src.tool import net_tool as tool
+from src.main.image_style_transfer import loss as loss_function
 
 # 判读是否使用gpu
 ctx = tool.get_ctx()
 
-content_weight = 1
-style_weight = 1000
+# 内容风格占比
+alpha = 0.05
+# 学习速率
 learning_rate = 0.01
 
-
 # 设置输入输出文件路径
-input_path = "../../data/img/content/input.jpg"
-style_path = "../../data/img/style/style6.jpg"
-output_path ="../../data/img/"
-
-
-
-def content_loss(x, y):
-    """
-    内容loss function
-    :param x:
-    :param y:
-    :return:
-    """
-    return gluon.loss.L2Loss()(x, y)
-
-
-def gram(features):
-    """
-    计算features 的 gram矩阵
-    :param features:
-    :return:
-    """
-    (b, ch, h, w) = features.shape
-    features = features.reshape((b, ch, w * h))
-    gram = mx.ndarray.batch_dot(features, features, transpose_b=True)
-    return gram
-
-
-def style_loss(features, _features):
-    loss = 0.
-    for i in range(len(features)):
-        feature = features[i]
-        G = gram(feature)
-        A = gram(_features[i])
-        N = feature.shape[1]
-        M = feature.shape[2]*feature.shape[3]
-        loss = loss + gluon.loss.L2Loss()(A, G) * (1. / (2 * (N ** 2) * (M ** 2)))*0.2
-    return loss
+input_path = "../../../data/img/content/input.jpg"
+style_path = "../../../data/img/style/style6.jpg"
 
 
 def train():
@@ -78,7 +42,7 @@ def train():
 
     output = gluon.Parameter('_img', shape=img.shape)
     output.initialize(ctx=ctx)
-    output.set_data(style_img)
+    output.set_data(img)
 
     tool.save_img(output.data(), "../../data/img/src.jpg")
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
@@ -88,8 +52,9 @@ def train():
         with autograd.record():
             _img = output.data()
             _features = features_net(_img)
-            loss = content_weight * content_loss(content, _features[0])+\
-                   style_weight * style_loss(style,_features[1:])
+            _content = _features[0]
+            _style = _features[1:]
+            loss = loss_function.loss(content,_content,style,_style,alpha)
 
         loss.backward()
         trainer.step(1)
@@ -102,8 +67,6 @@ def train():
 
 
 def read_input():
-
-
     # 读取图片
     input_img = tool.read_img(input_path).as_in_context(ctx)
     style_img = tool.read_img(style_path).as_in_context(ctx)
