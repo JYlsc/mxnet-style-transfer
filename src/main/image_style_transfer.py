@@ -16,7 +16,7 @@ from src.tool import net_tool as tool
 ctx = tool.get_ctx()
 
 content_weight = 1
-style_weight = 100
+style_weight = 1000
 learning_rate = 0.01
 
 
@@ -72,7 +72,7 @@ def train():
     output = gluon.Parameter('_img', shape=img.shape)
     output.set_data(img)
     output.initialize(ctx=ctx)
-
+    tool.save_img(output.data(), "../../data/img/output.png")
     trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
 
     # 迭代获取新图片
