@@ -93,7 +93,7 @@ def train():
 def read_input():
     # 设置输入输出文件路径
     input_path = "../../data/img/input.jpg"
-    style_path = "../../data/img/style.jpg"
+    style_path = "../../data/img/style3.jpg"
 
     # 读取图片
     input_img = tool.read_img(input_path).as_in_context(ctx)
