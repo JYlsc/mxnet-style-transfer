@@ -12,18 +12,23 @@ from src.main.image_style_transfer import model as model
 from src.main.image_style_transfer.model import FeatureNet
 from src.tool import net_tool as tool
 
-
 # 判读是否使用gpu
 ctx = tool.get_ctx()
 
-# 内容风格占比
+# 内容风格占比，值越大，风格越突出
 alpha = 5000
-beta =10
-# 学习速率
+
+# 学习速率，需根据实际情况进行调节
+# 同时学习速率也可以视为画笔大小，速率越大图片风格越粗旷
 learning_rate = 10
+
+# tv_loss 权重，值越大图片越干净
+beta = 10
+
 # 迭代次数
 iter = 1000
 
+# 生成的图片大小
 size = 400
 
 data_path = "../../../data/"
@@ -52,18 +57,26 @@ def style_transfer(net, content_img, style_img):
     for e in range(iter):
         with autograd.record():
             _img = output.data()
+            # 获取content 及style
             _features = net.get_feature(_img)
             _content = _features[0]
             _style = _features[1:]
+            # 计算风格loss
             style_loss = alpha * net.get_style_loss(_style, style)
-            content_loss =  net.get_loss(content, _content)
+            # 计算内容loss
+            content_loss = net.get_loss(content, _content)
+            # 计算总变差降噪loss
             tv_loss = beta * net.get_tv_loss(_img)
-            loss = style_loss+content_loss+tv_loss
+            loss = style_loss + content_loss + tv_loss
 
         loss.backward()
         trainer.step(1)
-
-        print( "tv_loss:", tv_loss,"\ncontent_loss:", content_loss,"\nstyle_loss:", style_loss,"\n次数:", e, "\nloss:", loss)
+        print("-" * 30)
+        print("tv_loss:", tv_loss,
+              "\ncontent_loss:", content_loss,
+              "\nstyle_loss:", style_loss,
+              "\n迭代次数:", e,
+              "\nloss:",loss)
 
         if e % 100 == 0:
             tool.save_img(output.data(), output_path + str(e) + ".png")
@@ -81,4 +94,5 @@ if __name__ == "__main__":
     content_img = tool.read_img(input_path, ctx=ctx, size=size)
     style_img = tool.read_img(style_path, ctx=ctx, size=size)
 
+    # 生成图片
     style_transfer(net, content_img, style_img)

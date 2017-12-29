@@ -62,5 +62,10 @@ class FeatureNet():
         return loss
 
     def get_tv_loss(self,img):
+        """
+        总变差降噪（Total Variation Denoising）
+        :param img:
+        :return:
+        """
         return 0.5 * ((img[:, :, 1:, :] - img[:, :, :-1, :]).abs().mean() +
                       (img[:, :, :, 1:] - img[:, :, :, :-1]).abs().mean())
