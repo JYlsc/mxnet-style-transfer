@@ -56,27 +56,27 @@ class FeatureNet():
             list.append(self.gram(feature))
         return list
 
-    # def gram(features):
-    #     """
-    #     计算features 的 gram矩阵
-    #     :param features:
-    #     :return:
-    #     """
-    #     c = features.shape[1]
-    #     n = features.size / features.shape[1]
-    #     y = features.reshape((c, int(n)))
-    #     return nd.dot(y, y.T) / n
-
     def gram(self,features):
         """
         计算features 的 gram矩阵
         :param features:
         :return:
         """
-        (b, ch, h, w) = features.shape
-        features = features.reshape((b, ch, w * h))
-        gram = nd.batch_dot(features, features, transpose_b=True)
-        return gram
+        c = features.shape[1]
+        n = features.size / features.shape[1]
+        y = features.reshape((c, int(n)))
+        return nd.dot(y, y.T) / n
+
+    # def gram(self,features):
+    #     """
+    #     计算features 的 gram矩阵
+    #     :param features:
+    #     :return:
+    #     """
+    #     (b, ch, h, w) = features.shape
+    #     features = features.reshape((b, ch, w * h))
+    #     gram = nd.batch_dot(features, features, transpose_b=True)
+    #     return gram
 
     def get_style_loss(self, grams, _grams):
         """
