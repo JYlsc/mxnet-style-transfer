@@ -53,19 +53,30 @@ class FeatureNet():
     def get_grams(self, features):
         list = []
         for feature in features:
-            list.append(self.get_gram(feature))
+            list.append(self.gram(feature))
         return list
 
-    def get_gram(self, features):
+    # def gram(features):
+    #     """
+    #     计算features 的 gram矩阵
+    #     :param features:
+    #     :return:
+    #     """
+    #     c = features.shape[1]
+    #     n = features.size / features.shape[1]
+    #     y = features.reshape((c, int(n)))
+    #     return nd.dot(y, y.T) / n
+
+    def gram(self,features):
         """
         计算features 的 gram矩阵
         :param features:
         :return:
         """
-        c = features.shape[1]
-        n = features.size / c
-        y = features.reshape((c, int(n)))
-        return nd.dot(y, y.T)
+        (b, ch, h, w) = features.shape
+        features = features.reshape((b, ch, w * h))
+        gram = nd.batch_dot(features, features, transpose_b=True)
+        return gram
 
     def get_style_loss(self, grams, _grams):
         """
