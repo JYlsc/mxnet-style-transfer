@@ -8,95 +8,76 @@
 from mxnet import gluon, autograd
 import mxnet as mx
 from mxnet.gluon.model_zoo import vision
-
-from src.main.image_style_transfer.model import FeatureNet
+from src.main.image_style_transfer import model as model
 from src.tool import net_tool as tool
 from src.main.image_style_transfer import loss as loss_function
 
 # 判读是否使用gpu
 ctx = tool.get_ctx()
 
-# 内容风格占比,当觉得风格不明显时可以放大该值
-alpha = 50000
-
-# 学习速率,需按实际情况进行调整
-# 每张图片可能都不一样
+# 内容风格占比
+alpha = 500
+# 学习速率
 learning_rate = 1
-
-# 噪音消除的权重
-beta = 0.1
-
 # 迭代次数
 iter = 10000
-
-# 生成图片大小
-# GTX1060 3G,尼玛只能生成400*400的图！！！
-img_size = 300
 
 data_path = "../../../data/"
 
 # 设置输入输出文件路径
-input_path = data_path + "img/content/input.jpg"
-style_path = data_path + "img/style/style7.jpg"
-output_path = data_path + "img/output/"
+input_path = data_path+"img/content/input.jpg"
+style_path = data_path+"img/style/style7.jpg"
+output_path =data_path+"img/output/"
 
 # vgg 参数路径
-param = data_path + "param/"
+param = data_path+"param/"
 
 
-def style_transfer(net, content_img, style_img):
+def train():
+    # 加载vgg模型
+    vgg = vision.vgg19(ctx=ctx, pretrained=True, root=param)
+
+    # 构建风格网络及内容网络
+    features_net = model.features_net(vgg)
+
+    # 读取图片
+    img = tool.read_img(input_path).as_in_context(ctx)
+    style_img = tool.read_img(style_path).as_in_context(ctx)
+
     # 获取style及content
-    content, _ = net.get_features(content_img)
-    _, style = net.get_features(style_img)
+    content = features_net(img)[0]
+    style = features_net(style_img)[1:]
 
-    # 提前计算风格图的gram已提高计算速度
-    grams = net.get_grams(style)
+    output = gluon.Parameter('_img', shape=img.shape)
+    output.initialize(ctx=ctx)
+    output.set_data(img)
 
-    # 构建储存输出图片的Parameter
-    result = gluon.Parameter('temp', shape=content_img.shape)
-    result.initialize(ctx=ctx)
-    result.set_data(content_img)
+    tool.save_img(output.data(), output_path+"src.jpg")
+    trainer = gluon.Trainer([output], 'adam', {'learning_rate': learning_rate})
 
-    # 构建训练器
-    trainer = gluon.Trainer([result], 'adam', {'learning_rate': learning_rate})
-
-    # 迭代生成新图片
+    # 迭代获取新图片
     for e in range(iter):
         with autograd.record():
-            # 获取目标图片当前的风格及内容特征
-            _content, _style = net.get_features(result.data())
-            _grams = net.get_grams(_style)
-
-            # 计算总loss
-            content_loss = net.get_loss(content, _content)
-            style_loss = alpha * net.get_style_loss(grams, _grams)
-            tv_loss = beta * net.get_tv_loss(result.data())
-            loss =content_loss+style_loss
-            #   + beta * net.get_tv_loss(result.data())
+            _img = output.data()
+            _features = features_net(_img)
+            _content = _features[0]
+            _style = _features[1:]
+            loss = loss_function.loss(content,_content,style,_style,alpha)
 
         loss.backward()
         trainer.step(1)
 
-        print("次数:", e, "\ncontent_loss:", content_loss,"\nstyle_loss",style_loss,"\nloss:",loss)
+        print("次数:", e, "  loss:", loss)
 
         if e % 100 == 0:
-            tool.save_img(result.data(), output_path + str(e) + ".png")
+            tool.save_img(output.data(), output_path + str(e) + ".png")
+    tool.save_img(output.data(), output_path+"result.png")
 
-    return result.data()
 
 
-if __name__ == "__main__":
-    # 加载vgg模型
-    vgg = vision.vgg19_bn(ctx=ctx, pretrained=True, root=param)
+train()
 
-    # 构建风格网络及内容网络
-    net = FeatureNet(vgg)
 
-    # 读取图片
-    content_img = tool.read_img(input_path, ctx)
-    style_img = tool.read_img(style_path, ctx)
 
-    result_img = style_transfer(net, content_img, style_img)
-
-    # 储存结果
-    tool.save_img(result_img, output_path + "result.png")
+if __name__ =="__main__":
+    pass

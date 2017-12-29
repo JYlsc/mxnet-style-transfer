@@ -12,8 +12,10 @@ from mxnet import gluon
 
 class FeatureNet():
 
-    def __init__(self):
+    def __init__(self,vgg):
         pass
+
+
 
 
 def features_net(vgg):
