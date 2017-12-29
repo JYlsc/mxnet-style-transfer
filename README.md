@@ -56,5 +56,53 @@
 
   ​
 
+- VGG(
+    (features): HybridSequential(
+
+      (0): Conv2D(3 -> 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (1): Activation(relu)
+      (2): Conv2D(64 -> 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (3): Activation(relu)
+      (4): MaxPool2D(size=(2, 2), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+      (5): Conv2D(64 -> 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (6): Activation(relu)
+      (7): Conv2D(128 -> 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (8): Activation(relu)
+      (9): MaxPool2D(size=(2, 2), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+      (10): Conv2D(128 -> 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (11): Activation(relu)
+      (12): Conv2D(256 -> 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (13): Activation(relu)
+      (14): Conv2D(256 -> 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (15): Activation(relu)
+      (16): Conv2D(256 -> 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (17): Activation(relu)
+      (18): MaxPool2D(size=(2, 2), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+      (19): Conv2D(256 -> 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (20): Activation(relu)
+      (21): Conv2D(512 -> 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (22): Activation(relu)
+      (23): Conv2D(512 -> 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (24): Activation(relu)
+      (25): Conv2D(512 -> 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (26): Activation(relu)
+      (27): MaxPool2D(size=(2, 2), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+      (28): Conv2D(512 -> 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (29): Activation(relu)
+      (30): Conv2D(512 -> 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (31): Activation(relu)
+      (32): Conv2D(512 -> 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (33): Activation(relu)
+      (34): Conv2D(512 -> 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+      (35): Activation(relu)
+      (36): MaxPool2D(size=(2, 2), stride=(2, 2), padding=(0, 0), ceil_mode=False)
+      (37): Dense(25088 -> 4096, Activation(relu))
+      (38): Dropout(p = 0.5)
+      (39): Dense(4096 -> 4096, Activation(relu))
+      (40): Dropout(p = 0.5)
+    )
+    (output): Dense(4096 -> 1000, linear)
+  )
+
 
   ​
