@@ -26,7 +26,6 @@ learning_rate = 1
 # 噪音消除的权重
 beta = 0.1
 
-
 # 迭代次数
 iter = 10000
 
@@ -69,14 +68,16 @@ def style_transfer(net, content_img, style_img):
             _grams = net.get_grams(_style)
 
             # 计算总loss
-            loss = net.get_loss(content, _content) \
-                   + alpha * net.get_style_loss(grams, _grams)
-                #   + beta * net.get_tv_loss(result.data())
+            content_loss = net.get_loss(content, _content)
+            style_loss = alpha * net.get_style_loss(grams, _grams)
+            tv_loss = beta * net.get_tv_loss(result.data())
+            loss =content_loss+style_loss
+            #   + beta * net.get_tv_loss(result.data())
 
         loss.backward()
         trainer.step(1)
 
-        print("次数:", e, "  loss:", loss)
+        print("次数:", e, "\ncontent_loss:", content_loss,"\nstyle_loss",style_loss,"\nloss:",loss)
 
         if e % 100 == 0:
             tool.save_img(result.data(), output_path + str(e) + ".png")
@@ -93,7 +94,7 @@ if __name__ == "__main__":
 
     # 读取图片
     content_img = tool.read_img(input_path, ctx)
-    style_img = tool.read_img(input_path, ctx)
+    style_img = tool.read_img(style_path, ctx)
 
     result_img = style_transfer(net, content_img, style_img)
 
