@@ -18,18 +18,19 @@ ctx = tool.get_ctx()
 
 # 内容风格占比
 alpha = 500
+beta =10
 # 学习速率
-learning_rate = 1
+learning_rate = 10
 # 迭代次数
-iter = 10000
+iter = 500
 
-size = 400
+size = 300
 
 data_path = "../../../data/"
 
 # 设置输入输出文件路径
-input_path = data_path + "img/content/input.jpg"
-style_path = data_path + "img/style/style7.jpg"
+input_path = data_path + "img/content/stata.jpg"
+style_path = data_path + "img/style/shuimo.jpg"
 output_path = data_path + "img/output/"
 
 # vgg 参数路径
@@ -38,8 +39,8 @@ param = data_path + "param/"
 
 def style_transfer(net, content_img, style_img):
     # 获取style及content
-    content = net(content_img)[0]
-    style = net(style_img)[1:]
+    content = net.get_feature(content_img)[0]
+    style = net.get_feature(style_img)[1:]
 
     output = gluon.Parameter('_img', shape=content_img.shape)
     output.initialize(ctx=ctx)
@@ -51,15 +52,18 @@ def style_transfer(net, content_img, style_img):
     for e in range(iter):
         with autograd.record():
             _img = output.data()
-            _features = net(_img)
+            _features = net.get_feature(_img)
             _content = _features[0]
             _style = _features[1:]
-            loss = net.get_loss(content, _content) + alpha * net.get_style_loss(_style, style)
+            style_loss = alpha * net.get_style_loss(_style, style)
+            content_loss =  net.get_loss(content, _content)
+            tv_loss = beta * net.get_tv_loss(_img)
+            loss = style_loss+content_loss+tv_loss
 
         loss.backward()
         trainer.step(1)
 
-        print("次数:", e, "  loss:", loss)
+        print( "tv_loss:", tv_loss,"\ncontent_loss:", content_loss,"\nstyle_loss:", style_loss,"\n次数:", e, "\nloss:", loss)
 
         if e % 100 == 0:
             tool.save_img(output.data(), output_path + str(e) + ".png")
@@ -77,4 +81,4 @@ if __name__ == "__main__":
     content_img = tool.read_img(input_path, ctx=ctx, size=size)
     style_img = tool.read_img(style_path, ctx=ctx, size=size)
 
-    style_transfer(net, content_img, input_path)
+    style_transfer(net, content_img, style_img)

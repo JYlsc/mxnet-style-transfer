@@ -13,6 +13,9 @@ from mxnet import ndarray as nd
 
 class FeatureNet():
 
+    def get_feature(self,x):
+        return self.net(x)
+
     def __init__(self, vgg):
         self.net = self.init_net(vgg)
         pass
@@ -53,6 +56,11 @@ class FeatureNet():
             G = self.get_gram(_features[i])
             A = self.get_gram(features[i])
             N = features[i].shape[1]
-            M = features[i] / N
-            loss = loss + self.get_loss(A, G) * (1. / (2 * (N ** 2) * (M ** 2))) * 0.2
+            M = features[i].size / N
+            style_loss =self.get_loss(A, G) * (1. / (2 * (N ** 2) * (M ** 2))) * 0.2
+            loss = style_loss+loss
         return loss
+
+    def get_tv_loss(self,img):
+        return 0.5 * ((img[:, :, 1:, :] - img[:, :, :-1, :]).abs().mean() +
+                      (img[:, :, :, 1:] - img[:, :, :, :-1]).abs().mean())
