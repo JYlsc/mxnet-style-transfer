@@ -11,26 +11,26 @@ from mxnet.gluon.model_zoo import vision
 from src.main.image_style_transfer import model as model
 from src.main.image_style_transfer.model import FeatureNet
 from src.tool import net_tool as tool
-from src.main.image_style_transfer import loss as loss_function
+
 
 # 判读是否使用gpu
 ctx = tool.get_ctx()
 
 # 内容风格占比
-alpha = 500
+alpha = 5000
 beta =10
 # 学习速率
 learning_rate = 10
 # 迭代次数
-iter = 500
+iter = 1000
 
-size = 300
+size = 400
 
 data_path = "../../../data/"
 
 # 设置输入输出文件路径
-input_path = data_path + "img/content/stata.jpg"
-style_path = data_path + "img/style/shuimo.jpg"
+input_path = data_path + "img/content/dog.jpg"
+style_path = data_path + "img/style/head.jpg"
 output_path = data_path + "img/output/"
 
 # vgg 参数路径
